@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-public class Node<T> implements Serializable {
+public class Node<T> extends Attributes implements Serializable {
     private Node<T> parent;
     public final List<Node<T>> children = new ArrayList<>();
     public T value;
@@ -216,7 +216,6 @@ public class Node<T> implements Serializable {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private static final Object AK_LINKED_PREV = new Object();
     private static final Object AK_LINKED_NEXT = new Object();
-    private Node<T> linkedPrevious, linkedNext;
 
     public final void relinkChildren() {
         relinkChildren((l, n, v) -> !n.hasChildren());
@@ -227,10 +226,8 @@ public class Node<T> implements Serializable {
         this.traverse((level, node, val) -> {
             if (null != nodeAcceptor && nodeAcceptor.test(level, node, val)) {
                 if (null != ctx.value) {
-                    ctx.value.linkedNext = node;
-                    node.linkedPrevious = ctx.value;
-//                ctx.value.attr(AK_LINKED_NEXT, node);
-//                node.attr(AK_LINKED_PREV, ctx.value);
+                    ctx.value.attr(AK_LINKED_NEXT, node);
+                    node.attr(AK_LINKED_PREV, ctx.value);
                 }
                 ctx.value = node; // update to last one
             }
@@ -238,12 +235,10 @@ public class Node<T> implements Serializable {
     }
 
     public final Node<T> getLinkedPrevious() {
-//        return this.attr(AK_LINKED_PREV);
-        return linkedPrevious;
+        return this.attr(AK_LINKED_PREV);
     }
 
     public final Node<T> getLinkedNext() {
-//        return this.attr(AK_LINKED_NEXT);
-        return linkedNext;
+        return this.attr(AK_LINKED_NEXT);
     }
 }

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 public interface FileHelper {
@@ -51,6 +52,45 @@ public interface FileHelper {
             }
     }
 
+    static void delete(Path file) {
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static long fileSize(Path file) {
+        try {
+            return Files.size(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    static long fileTime(Path file) {
+        if (exists(file)) {
+            try {
+                return Files.getLastModifiedTime(file).toMillis();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
+
+    static long fileTimeNewest(Path... files) {
+        if (null == files || files.length == 0)
+            return -1;
+        final Long[] times = new Long[files.length];
+        for (int i = 0; i < files.length; i++) {
+            times[i] = fileTime(files[i]);
+        }
+        Arrays.sort(times);
+        return times[times.length - 1];
+    }
+
     static String makeEncodedPath(String input, String dotExt) {
         final StringBuilder buf = new StringBuilder();
         buf.append(DigestHelper.md5(input));
@@ -70,8 +110,8 @@ public interface FileHelper {
         return null;
     }
 
-    static boolean writeString(Path file, CharSequence string) {
-        makeDirs(file.getParent());
+    static boolean writeString(CharSequence string, Path file) {
+        makeParents(file);
         try {
             Files.writeString(file, string);
             return true;
@@ -93,12 +133,8 @@ public interface FileHelper {
         }
     }
 
-    static boolean writeObject(Path file, Object object) {
-        try {
-            Files.createDirectories(file.getParent());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    static boolean writeObject(Object object, Path file) {
+        makeParents(file);
         try (ObjectOutputStream objStream = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(file)))) {
             objStream.writeObject(object);
             return true;
@@ -126,5 +162,15 @@ public interface FileHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    static boolean isTargetFileUpdatable(Path target, Path... sources) {
+        if (notExists(target))
+            return true;
+        if (fileTime(target) < fileTimeNewest(sources)) {
+            delete(target);
+            return true;
+        }
+        return false;
     }
 }

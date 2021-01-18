@@ -3,6 +3,7 @@ package org.appxi.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,10 +17,17 @@ public interface StringHelper {
 
         final StringBuilder buf = new StringBuilder();
         for (final Object obj : items) {
-            if (null != obj)
-                buf.append(obj);
+            if (null == obj)
+                continue;
+            if (obj instanceof Throwable t)
+                buf.append('\n').append(getThrowableAsString(t)).append('\n');
+            else buf.append(obj);
         }
         return buf.toString();
+    }
+
+    static Supplier<String> msg(Object... args) {
+        return () -> StringHelper.concat(args);
     }
 
     static String join(String sep, String... items) {
@@ -266,12 +274,12 @@ public interface StringHelper {
     }
 
 
-    static boolean split2PartsAndFirstEquals(String str1, String str2, String splitter) {
+    static boolean split2PartsAndEqualsPart1(String str1, String str2, String splitter) {
         return str1.contains(splitter) && str2.contains(splitter)
                 && str1.split(splitter, 2)[0].equals(str2.split(splitter, 2)[0]);
     }
 
-    static boolean split2PartsAndSecondEquals(String str1, String str2, String splitter) {
+    static boolean split2PartsAndEqualsPart2(String str1, String str2, String splitter) {
         return str1.contains(splitter) && str2.contains(splitter)
                 && str1.split(splitter, 2)[1].equals(str2.split(splitter, 2)[1]);
     }

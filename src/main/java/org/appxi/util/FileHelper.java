@@ -145,7 +145,15 @@ public interface FileHelper {
     }
 
     static void lines(Path file, Predicate<String> predicate) {
-        try (BufferedReader reader = Files.newBufferedReader(file)) {
+        try (InputStream stream = Files.newInputStream(file)) {
+            lines(stream, predicate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void lines(InputStream stream, Predicate<String> predicate) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(stream)))) {
             String line;
             while ((line = reader.readLine()) != null)
                 if (predicate.test(line))

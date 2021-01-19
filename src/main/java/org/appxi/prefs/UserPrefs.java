@@ -9,16 +9,21 @@ public abstract class UserPrefs {
 
     public static Preferences favorites = new PreferencesInMemory();
 
-    private static Path _workDir = Path.of("").toAbsolutePath();
+    private static final Path _workDir = Path.of("").toAbsolutePath();
+    private static Path _dataDir = Path.of(System.getProperty("user.home"));
     private static Path _confDir = _workDir.resolve(".config");
 
-    public static void setupWorkDirectory(Path workDir, String confDirName) {
-        _workDir = null != workDir ? workDir : _workDir;
-        _confDir = _workDir.resolve(null == confDirName || confDirName.isBlank() ? ".config" : confDirName);
+    public static void setupDataDirectory(Path dataDir, String confDirName) {
+        _dataDir = null != dataDir ? dataDir : _dataDir;
+        _confDir = _dataDir.resolve(null == confDirName || confDirName.isBlank() ? ".config" : confDirName);
     }
 
     public static Path workDir() {
         return _workDir;
+    }
+
+    public static Path dataDir() {
+        return _dataDir;
     }
 
     public static Path confDir() {
@@ -26,6 +31,6 @@ public abstract class UserPrefs {
     }
 
     public static Path cacheDir() {
-        return _workDir.resolve(".cached");
+        return _dataDir.resolve(".cached");
     }
 }

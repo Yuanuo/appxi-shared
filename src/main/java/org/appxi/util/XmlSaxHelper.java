@@ -1,5 +1,6 @@
 package org.appxi.util;
 
+import org.appxi.util.ext.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface XmlSaxHelper {
+    Object AK_VISITORS = new Object();
+
     static void walk(Path file, XmlSaxVisitor... visitors) throws Exception {
         walk(file, true, visitors);
     }
@@ -39,59 +42,58 @@ public interface XmlSaxHelper {
         }
 
         parserFactory.newSAXParser().parse(input, new DefaultHandler() {
-            final StringBuilder path = new StringBuilder("/");
-            List<XmlSaxVisitor> filteredVisitors;
-            String pathStr;
+            private Node<String> node = new Node<>();
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attributes)
                     throws SAXException {
                 if (null == qName || qName.isBlank())
                     throw new RuntimeException();
-                path.append(qName).append('/');
-                pathStr = path.toString();
 
-                filteredVisitors = new ArrayList<>();
+                node = node.add(qName);
+                List<XmlSaxVisitor> filteredVisitors = new ArrayList<>();
                 for (XmlSaxVisitor visitor : visitors) {
-                    if (visitor.accept(pathStr, qName)) {
-
+                    if (visitor.accept(node, attributes)) {
                         filteredVisitors.add(visitor);
-                        visitor.preVisitElement(pathStr, qName, attributes);
                     }
+                }
+                if (!filteredVisitors.isEmpty()) {
+                    filteredVisitors.forEach(visitor -> visitor.preVisitElement(node, attributes));
+                    node.attr(AK_VISITORS, filteredVisitors);
                 }
             }
 
             @Override
             public void characters(char[] chars, int start, int length) throws SAXException {
-                filteredVisitors
-                        .forEach(visitor -> visitor.visitElementContent(pathStr, String.valueOf(chars, start, length)));
+                if (node.hasAttr(AK_VISITORS)) {
+                    String text = String.valueOf(chars, start, length);
+                    ((List<XmlSaxVisitor>) node.attr(AK_VISITORS)).forEach(visitor -> visitor.visitElementContent(node, text));
+                }
             }
 
             @Override
             public void endElement(String uri, String localName, String qName) throws SAXException {
-                filteredVisitors.forEach(visitor -> visitor.postVisitElement(pathStr, qName));
-
-                // relink to parent
-                path.delete(pathStr.length() - qName.length() - 1, pathStr.length());
-                pathStr = path.toString();
+                if (node.hasAttr(AK_VISITORS)) {
+                    ((List<XmlSaxVisitor>) node.removeAttr(AK_VISITORS)).forEach(visitor -> visitor.postVisitElement(node));
+                }
+                node = node.parent();
             }
         });
     }
 
     interface XmlSaxVisitor {
 
-        default boolean accept(String path, String tagName) {
+        default boolean accept(Node<String> node, Attributes attributes) {
             return true;
         }
 
-        default void preVisitElement(String path, String tagName, Attributes attributes) {
+        default void preVisitElement(Node<String> node, Attributes attributes) {
         }
 
-        default void visitElementContent(String path, String text) {
+        default void visitElementContent(Node<String> node, String text) {
         }
 
-        default void postVisitElement(String path, String tagName) {
+        default void postVisitElement(Node<String> node) {
         }
-
     }
 }

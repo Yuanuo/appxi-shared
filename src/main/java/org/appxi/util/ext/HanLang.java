@@ -17,7 +17,7 @@ public enum HanLang {
         this.text = text;
     }
 
-    static HanLang valueBy(String lang) {
+    public static HanLang valueBy(String lang) {
         lang = null != lang ? lang.toLowerCase() : "";
         return switch (lang) {
             case "zh-hans", "hans", "zh_cn", "zh-cn" -> hans;

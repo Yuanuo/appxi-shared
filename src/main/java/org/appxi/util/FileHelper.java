@@ -4,9 +4,14 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface FileHelper {
@@ -163,6 +168,16 @@ public interface FileHelper {
         }
     }
 
+    static boolean isTargetFileUpdatable(Path target, Path... sources) {
+        if (notExists(target))
+            return true;
+        if (fileTime(target) < fileTimeNewest(sources)) {
+            delete(target);
+            return true;
+        }
+        return false;
+    }
+
     static void extract(URL resource, Path targetFile) {
         makeParents(targetFile);
         try (InputStream inStream = resource.openStream()) {
@@ -172,13 +187,51 @@ public interface FileHelper {
         }
     }
 
-    static boolean isTargetFileUpdatable(Path target, Path... sources) {
-        if (notExists(target))
-            return true;
-        if (fileTime(target) < fileTimeNewest(sources)) {
-            delete(target);
-            return true;
+    static List<Path> extractFiles(Function<String, InputStream> sourceSupplier,
+                                   Function<String, Path> targetSupplier,
+                                   Collection<String> files) {
+        return extractFiles(sourceSupplier, targetSupplier, files.toArray(new String[0]));
+    }
+
+    static List<Path> extractFiles(Function<String, InputStream> sourceSupplier,
+                                   Function<String, Path> targetSupplier,
+                                   String... files) {
+        final List<Path> result = new ArrayList<>(files.length);
+        Path extracted;
+        for (String file : files) {
+            extracted = extractFile(sourceSupplier, targetSupplier, file);
+            if (null != extracted)
+                result.add(extracted);
         }
-        return false;
+        return result;
+    }
+
+    static Path extractFile(Function<String, InputStream> sourceSupplier,
+                            Function<String, Path> targetSupplier,
+                            String file) {
+        final Path target = targetSupplier.apply(file);
+        if (exists(target))
+            return target;
+        makeParents(target);
+        //
+        final Path localFile = Paths.get(file);
+        if (exists(localFile)) {
+            try {
+                Files.copy(localFile, target);
+                return target;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //
+        try (InputStream stream = sourceSupplier.apply(file)) {
+            if (null != stream) {
+                Files.copy(stream, target);
+                return target;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

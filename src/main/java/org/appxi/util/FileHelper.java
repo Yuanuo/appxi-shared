@@ -7,10 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -61,6 +58,19 @@ public interface FileHelper {
         try {
             Files.delete(file);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void deleteDirectory(Path directory) {
+        if (notExists(directory))
+            return;
+        try {
+            Files.walk(directory)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

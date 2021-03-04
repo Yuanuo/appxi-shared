@@ -7,7 +7,7 @@ import java.util.*;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileWatcher implements Runnable {
-    protected static final List<WatchService> watchServices = new ArrayList<>();
+    protected static final List<WatchService> watchServices = new ArrayList<>(4);
     protected final List<WatchListener> watchListeners = new ArrayList<>();
     private Path folder, fileName;
     private WatchKey watchKey;

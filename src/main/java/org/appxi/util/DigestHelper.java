@@ -1,6 +1,8 @@
 package org.appxi.util;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.CRC32C;
@@ -10,14 +12,22 @@ public abstract class DigestHelper {
     }
 
     public static String crc32c(String str, String salt) {
+        return crc32c(str, salt, StandardCharsets.UTF_8);
+    }
+
+    public static String crc32c(String str, String salt, Charset charset) {
         if (null == salt)
-            return crc32c(str);
-        return crc32c(StringHelper.concat(str, '@', salt));
+            return crc32c(str, charset);
+        return crc32c(StringHelper.concat(str, '@', salt), charset);
     }
 
     public static String crc32c(String input) {
+        return crc32c(input, StandardCharsets.UTF_8);
+    }
+
+    public static String crc32c(String input, Charset charset) {
         final CRC32C checksum = new CRC32C();
-        checksum.update(input.getBytes());
+        checksum.update(input.getBytes(charset));
         return Long.toHexString(checksum.getValue());
     }
 

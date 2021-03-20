@@ -41,7 +41,7 @@ public final class OrderedProperties implements Serializable {
      * the ordering of the keys, this instance behaves like an instance of the {@link Properties} class.
      */
     public OrderedProperties() {
-        this(new LinkedHashMap<String, String>(), false);
+        this(new LinkedHashMap<>(), false);
     }
 
     private OrderedProperties(Map<String, String> properties, boolean suppressDate) {
@@ -114,21 +114,21 @@ public final class OrderedProperties implements Serializable {
      * See {@link Properties#propertyNames()}.
      */
     public Enumeration<String> propertyNames() {
-        return new Vector<String>(properties.keySet()).elements();
+        return new Vector<>(properties.keySet()).elements();
     }
 
     /**
      * See {@link Properties#stringPropertyNames()}.
      */
     public Set<String> stringPropertyNames() {
-        return new LinkedHashSet<String>(properties.keySet());
+        return new LinkedHashSet<>(properties.keySet());
     }
 
     /**
      * See {@link Properties#entrySet()}.
      */
     public Set<Map.Entry<String, String>> entrySet() {
-        return new LinkedHashSet<Map.Entry<String, String>>(properties.entrySet());
+        return new LinkedHashSet<>(properties.entrySet());
     }
 
     /**
@@ -269,7 +269,7 @@ public final class OrderedProperties implements Serializable {
     @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
-        properties = (Map<String, String>) stream.readObject();
+        properties = (LinkedHashMap<String, String>) stream.readObject();
         suppressDate = stream.readBoolean();
     }
 
@@ -293,7 +293,7 @@ public final class OrderedProperties implements Serializable {
      */
     public static OrderedProperties copyOf(OrderedProperties source) {
         // create a copy that has the same behaviour
-        OrderedPropertiesBuilder builder = new OrderedPropertiesBuilder();
+        Builder builder = new Builder();
         builder.withSuppressDateInComment(source.suppressDate);
         if (source.properties instanceof TreeMap) {
             builder.withOrdering(((TreeMap<String, String>) source.properties).comparator());
@@ -310,7 +310,7 @@ public final class OrderedProperties implements Serializable {
     /**
      * MessagesBuilder for {@link OrderedProperties} instances.
      */
-    public static final class OrderedPropertiesBuilder {
+    public static final class Builder {
 
         private Comparator<? super String> comparator;
         private boolean suppressDate;
@@ -321,7 +321,7 @@ public final class OrderedProperties implements Serializable {
          * @param comparator the ordering to apply on the keys
          * @return the builder
          */
-        public OrderedPropertiesBuilder withOrdering(Comparator<? super String> comparator) {
+        public Builder withOrdering(Comparator<? super String> comparator) {
             this.comparator = comparator;
             return this;
         }
@@ -332,7 +332,7 @@ public final class OrderedProperties implements Serializable {
          * @param suppressDate whether to suppress the comment that contains the current date
          * @return the builder
          */
-        public OrderedPropertiesBuilder withSuppressDateInComment(boolean suppressDate) {
+        public Builder withSuppressDateInComment(boolean suppressDate) {
             this.suppressDate = suppressDate;
             return this;
         }
@@ -344,8 +344,8 @@ public final class OrderedProperties implements Serializable {
          */
         public OrderedProperties build() {
             Map<String, String> properties = (this.comparator != null) ?
-                    new TreeMap<String, String>(comparator) :
-                    new LinkedHashMap<String, String>();
+                    new TreeMap<>(comparator) :
+                    new LinkedHashMap<>();
             return new OrderedProperties(properties, suppressDate);
         }
 
@@ -386,7 +386,7 @@ public final class OrderedProperties implements Serializable {
 
         @Override
         public Set<Object> keySet() {
-            return new LinkedHashSet<Object>(targetProperties.keySet());
+            return new LinkedHashSet<>(targetProperties.keySet());
         }
 
         @SuppressWarnings("unchecked")

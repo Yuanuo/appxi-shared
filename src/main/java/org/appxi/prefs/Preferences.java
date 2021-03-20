@@ -15,6 +15,8 @@ public interface Preferences {
 
     Set<String> getPropertyKeys();
 
+    boolean containsProperty(String key);
+
     default String getString(String key, String defaultValue) {
         final Object val = getProperty(key);
         return null == val ? defaultValue : val.toString();

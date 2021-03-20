@@ -66,6 +66,11 @@ public class PreferencesInProperties implements Preferences {
     }
 
     @Override
+    public boolean containsProperty(String key) {
+        return prefs.containsProperty(key);
+    }
+
+    @Override
     public void save() {
         FileHelper.makeParents(file);
         try (OutputStream outStream = Files.newOutputStream(file)) {

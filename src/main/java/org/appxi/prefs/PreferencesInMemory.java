@@ -35,6 +35,11 @@ public class PreferencesInMemory implements Preferences {
     }
 
     @Override
+    public boolean containsProperty(String key) {
+        return prefs.containsKey(key);
+    }
+
+    @Override
     public void save() {
         // do nothing
     }

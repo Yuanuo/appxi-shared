@@ -1,5 +1,4 @@
 module appxi.shared {
-    requires java.logging;
     requires transitive java.xml;
 
     exports org.appxi.file;

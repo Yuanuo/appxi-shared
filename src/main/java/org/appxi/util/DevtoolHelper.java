@@ -1,10 +1,6 @@
 package org.appxi.util;
 
-import java.util.logging.Logger;
-
 public abstract class DevtoolHelper {
-    public static final Logger LOG = Logger.getLogger("DEVTOOL");
-
     public static final int MB = 1024 * 1024;
 
     private DevtoolHelper() {

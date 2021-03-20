@@ -26,23 +26,11 @@ public interface StringHelper {
         return buf.toString();
     }
 
-    static Supplier<String> msg(Object... args) {
-        return () -> StringHelper.concat(args);
+    static Supplier<String> concat2(Object... items) {
+        return () -> StringHelper.concat(items);
     }
 
-    static String join(String sep, String... items) {
-        return joinArray(sep, items);
-    }
-
-    static String join(String sep, Collection<?> items) {
-        return joinArray(sep, items.toArray(new Object[items.size()]));
-    }
-
-    static String joinLines(Collection<?> items) {
-        return joinArray(System.lineSeparator(), items.toArray(new Object[items.size()]));
-    }
-
-    static String joinArray(String sep, Object... items) {
+    static <T> String join(String separator, T... items) {
         if (items.length == 0)
             return "";
 
@@ -51,11 +39,28 @@ public interface StringHelper {
 
         final StringBuilder buf = new StringBuilder();
         for (Object itm : items) {
-            if (null != sep && buf.length() > 0)
-                buf.append(sep);
+            if (null == itm)
+                continue;
+            if (null != separator && buf.length() > 0)
+                buf.append(separator);
             buf.append(itm);
         }
         return buf.toString();
+    }
+
+    static String join(String separator, Collection<?> items) {
+        return join(separator, items.toArray(new Object[0]));
+    }
+
+    static String joinLines(Collection<?> items) {
+        return join(System.lineSeparator(), items.toArray(new Object[0]));
+    }
+
+    /**
+     * @deprecated use {@link #join(String, Object[])}
+     */
+    static String joinArray(String separator, Object... items) {
+        return join(separator, items);
     }
 
     static boolean indexOf(String value, String... values) {

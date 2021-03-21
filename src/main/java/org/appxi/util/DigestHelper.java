@@ -31,9 +31,14 @@ public abstract class DigestHelper {
         return Long.toHexString(checksum.getValue());
     }
 
+    /**
+     * @apiNote 注意大批量使用时性能不及CRC32
+     * @param input
+     * @return
+     */
     public static String md5(String input) {
         try {
-            final byte[] md5sum = MessageDigest.getInstance("MD5").digest(input.getBytes());
+            final byte[] md5sum = MessageDigest.getInstance("MD5").digest(input.getBytes(StandardCharsets.UTF_8));
             return String.format("%032X", new BigInteger(1, md5sum));
         } catch (NoSuchAlgorithmException e) {
             return crc32c(input);
@@ -52,14 +57,14 @@ public abstract class DigestHelper {
      * 产生一个ID,在同一个虚拟机下产生一个唯一的ID，其格式为[time] - [counter]
      */
     static class UID {
-        protected static long COUNTER = 0;
-        private static final Object lock = new Object();
-        protected final long time;
-        protected final long id;
+        private static final Object LOCK = new Object();
+        private static long COUNTER = 0;
+        private final long time;
+        private final long id;
 
         public UID() {
             time = System.currentTimeMillis();
-            synchronized (UID.lock) {
+            synchronized (UID.LOCK) {
                 id = UID.COUNTER++;
             }
         }

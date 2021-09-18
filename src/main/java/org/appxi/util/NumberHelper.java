@@ -17,6 +17,14 @@ public abstract class NumberHelper {
         }
     }
 
+    public static double toDouble(String str, double defaultValue) {
+        try {
+            return null == str || str.isBlank() ? defaultValue : Double.parseDouble(str);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     private static final String[] OLD_NUMBERS = {"〇", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"};
 
     public static String toChineseNumberOld(int num) {

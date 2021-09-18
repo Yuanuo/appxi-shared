@@ -2,6 +2,7 @@ package org.appxi.util.ext;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class Attributes {
     private final Map<Object, Object> attributes = new HashMap<>();
@@ -20,6 +21,11 @@ public class Attributes {
     public final String attrStr(Object key) {
         final Object val = this.attributes.get(key);
         return null == val ? null : val.toString();
+    }
+
+    public final <T> T attrOr(Object key, Supplier<T> defaultValue) {
+        final T val = (T) this.attributes.get(key);
+        return null != val ? val : defaultValue == null ? null : defaultValue.get();
     }
 
     @SuppressWarnings("unchecked")

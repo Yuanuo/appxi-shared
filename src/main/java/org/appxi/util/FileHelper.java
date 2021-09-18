@@ -8,8 +8,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public interface FileHelper {
     static String getIdentificationInfo(Path path, Object... additions) {
@@ -243,5 +246,30 @@ public interface FileHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    static String subPath(Path path, int beginIndex) {
+        return path.subpath(beginIndex, path.getNameCount()).toString().replace('\\', '/');
+    }
+
+    static boolean isNameValid(String name) {
+        try {
+            return Objects.equals(Path.of(name).getFileName().toString(), name);
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    static String toValidName(String name) {
+//        char[] ILLEGAL_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
+        return name.replaceAll("[/\n\r\t\0\f`?*\\\\<>|'\":;]", "");
+    }
+
+    static void walkZipFile(String file, BiConsumer<ZipFile, ZipEntry> consumer) {
+        try (ZipFile zipFile = new ZipFile(file)) {
+            zipFile.stream().forEach(zipEntry -> consumer.accept(zipFile, zipEntry));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

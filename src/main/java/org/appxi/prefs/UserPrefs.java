@@ -18,7 +18,8 @@ public abstract class UserPrefs {
     public static Preferences favorites = new PreferencesInMemory();
 
     private static final Path _workDir = Path.of("").toAbsolutePath();
-    private static Path _dataDir = Path.of(System.getProperty("user.home"));
+    private static Path _homeDir = Path.of(System.getProperty("user.home"));
+    private static Path _dataDir = _homeDir;
     private static Path _confDir = _workDir.resolve(".config");
 
     /**
@@ -41,7 +42,7 @@ public abstract class UserPrefs {
     public static void localDataDirectory(String dataDirName, String confDirName) {
         final Path dataDir = _workDir.resolve(dataDirName);
         setupDataDirectory(Files.isWritable(_workDir) && Files.exists(dataDir)
-                ? dataDir : _dataDir.resolve(dataDirName), confDirName);
+                ? dataDir : _homeDir.resolve(dataDirName), confDirName);
     }
 
     /**

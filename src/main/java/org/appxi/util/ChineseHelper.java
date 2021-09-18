@@ -7,11 +7,11 @@ public interface ChineseHelper {
     /**
      * 使用UnicodeScript方法判断
      *
-     * @param c
+     * @param codePoint
      * @return
      */
-    static boolean isChinese(char c) {
-        Character.UnicodeScript sc = Character.UnicodeScript.of(c);
+    static boolean isChinese(int codePoint) {
+        Character.UnicodeScript sc = Character.UnicodeScript.of(codePoint);
         return sc == Character.UnicodeScript.HAN;
     }
 
@@ -41,8 +41,8 @@ public interface ChineseHelper {
     }
 
     // 根据UnicodeBlock方法判断中文标点符号
-    static boolean isChinesePunctuation(char c) {
-        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+    static boolean isChinesePunctuation(int codePoint) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(codePoint);
         return ub == Character.UnicodeBlock.GENERAL_PUNCTUATION || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
                 || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
                 || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS
@@ -50,8 +50,8 @@ public interface ChineseHelper {
     }
 
     // 使用UnicodeBlock方法判断
-    static boolean isChineseByBlock(char c) {
-        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+    static boolean isChineseByBlock(int codePoint) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(codePoint);
         return ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
                 || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
                 || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B

@@ -2,6 +2,8 @@ package org.appxi.util;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
@@ -171,11 +174,36 @@ public interface FileHelper {
     }
 
     static void lines(InputStream stream, Predicate<String> predicate) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(stream)))) {
+        lines(stream, StandardCharsets.UTF_8, predicate);
+    }
+
+    static void lines(InputStream stream, Charset charset, Predicate<String> predicate) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(stream), charset))) {
             String line;
             while ((line = reader.readLine()) != null)
                 if (predicate.test(line))
                     return;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void lines(Path file, Consumer<String> consumer) {
+        try (InputStream stream = Files.newInputStream(file)) {
+            lines(stream, consumer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void lines(InputStream stream, Consumer<String> consumer) {
+        lines(stream, StandardCharsets.UTF_8, consumer);
+    }
+
+    static void lines(InputStream stream, Charset charset, Consumer<String> consumer) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(stream), charset))) {
+            String line;
+            while ((line = reader.readLine()) != null) consumer.accept(line);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -271,5 +299,15 @@ public interface FileHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static byte[] readFully(InputStream stream) {
+        try {
+            byte[] result = new byte[stream.available()];
+            stream.read(result);
+            return result;
+        } catch (Throwable ignore) {
+        }
+        return new byte[0];
     }
 }

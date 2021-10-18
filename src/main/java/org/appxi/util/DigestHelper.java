@@ -3,8 +3,9 @@ package org.appxi.util;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.zip.CRC32C;
 
 public abstract class DigestHelper {
@@ -32,16 +33,25 @@ public abstract class DigestHelper {
     }
 
     /**
-     * @apiNote 注意大批量使用时性能不及CRC32
      * @param input
      * @return
+     * @apiNote 注意大批量使用时性能不及CRC32
      */
     public static String md5(String input) {
         try {
             final byte[] md5sum = MessageDigest.getInstance("MD5").digest(input.getBytes(StandardCharsets.UTF_8));
             return String.format("%032X", new BigInteger(1, md5sum));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Throwable e) {
             return crc32c(input);
+        }
+    }
+
+    public static String md5(Path file) {
+        try {
+            final byte[] md5sum = MessageDigest.getInstance("MD5").digest(Files.readAllBytes(file));
+            return String.format("%032X", new BigInteger(1, md5sum));
+        } catch (Throwable e) {
+            return null;
         }
     }
 

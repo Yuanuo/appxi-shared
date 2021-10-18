@@ -29,7 +29,7 @@ public abstract class UserPrefs {
      * @param confDirName 指定的存储配置数据的目录名称，默认为<code>.config</code>
      */
     public static void setupDataDirectory(Path dataDir, String confDirName) {
-        _dataDir = null != dataDir ? dataDir : _dataDir;
+        _dataDir = (null != dataDir ? dataDir : _dataDir).toAbsolutePath();
         _confDir = _dataDir.resolve(null == confDirName || confDirName.isBlank() ? ".config" : confDirName);
     }
 
@@ -40,9 +40,20 @@ public abstract class UserPrefs {
      * @param confDirName 指定的配置目录名称，默认为<code>.config</code>
      */
     public static void localDataDirectory(String dataDirName, String confDirName) {
-        final Path dataDir = _workDir.resolve(dataDirName);
-        setupDataDirectory(Files.isWritable(_workDir) && Files.exists(dataDir)
-                ? dataDir : _homeDir.resolve(dataDirName), confDirName);
+        // 1，兼容绿色版，从当前目录的上一级寻找，如果可用则用
+        Path dataDir = _workDir.resolve("../".concat(dataDirName));
+        if (Files.exists(dataDir) && Files.isWritable(dataDir)) {
+            setupDataDirectory(dataDir, confDirName);
+            return;
+        }
+        // 2，兼容绿色版，从当前目录中寻找，如果可用则用
+        dataDir = _workDir.resolve(dataDirName);
+        if (Files.exists(dataDir) && Files.isWritable(dataDir)) {
+            setupDataDirectory(dataDir, confDirName);
+            return;
+        }
+        // 3，使用系统用户主目录
+        setupDataDirectory(_homeDir.resolve(dataDirName), confDirName);
     }
 
     /**

@@ -139,6 +139,65 @@ public interface StringHelper {
         return result.toArray(new String[0]);
     }
 
+    /**
+     * This function splits the String s into multiple Strings using the
+     * splitChar.  However, it provides a quoting facility: it is possible to
+     * quote strings with the quoteChar.
+     * If the quoteChar occurs within the quotedExpression, it must be prefaced
+     * by the escapeChar.
+     * This routine can be useful for processing a line of a CSV file.
+     *
+     * @param str         The String to split into fields. Cannot be null.
+     * @param splitChar The character to split on
+     * @param quoteChar The character to quote items with
+     * @param escapeChar The character to escape the quoteChar with
+     * @return An array of Strings that s is split into
+     */
+    static String[] splitOnCharWithQuoting(String str, char splitChar, char quoteChar, char escapeChar) {
+        List<String> result = new ArrayList<>();
+        int i = 0;
+        int length = str.length();
+        StringBuilder b = new StringBuilder();
+        while (i < length) {
+            char curr = str.charAt(i);
+            if (curr == splitChar) {
+                // add last buffer
+                // cdm 2014: Do this even if the field is empty!
+                // if (b.length() > 0) {
+                result.add(b.toString());
+                b = new StringBuilder();
+                // }
+                i++;
+            } else if (curr == quoteChar) {
+                // find next instance of quoteChar
+                i++;
+                while (i < length) {
+                    curr = str.charAt(i);
+                    // mrsmith: changed this condition from
+                    // if (curr == escapeChar) {
+                    if ((curr == escapeChar) && (i+1 < length) && (str.charAt(i+1) == quoteChar)) {
+                        b.append(str.charAt(i + 1));
+                        i += 2;
+                    } else if (curr == quoteChar) {
+                        i++;
+                        break; // break this loop
+                    } else {
+                        b.append(str.charAt(i));
+                        i++;
+                    }
+                }
+            } else {
+                b.append(curr);
+                i++;
+            }
+        }
+        // RFC 4180 disallows final comma. At any rate, don't produce a field after it unless non-empty
+        if (b.length() > 0) {
+            result.add(b.toString());
+        }
+        return result.toArray(new String[0]);
+    }
+
     static String[] stripBlanks(String... args) {
         final List<String> result = new ArrayList<>(args.length);
         for (String arg : args) {

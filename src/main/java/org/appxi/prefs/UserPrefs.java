@@ -29,7 +29,11 @@ public abstract class UserPrefs {
      * @param confDirName 指定的存储配置数据的目录名称，默认为<code>.config</code>
      */
     public static void setupDataDirectory(Path dataDir, String confDirName) {
-        _dataDir = (null != dataDir ? dataDir : _dataDir).toAbsolutePath();
+        try {
+            _dataDir = (null != dataDir ? dataDir : _dataDir).toFile().getCanonicalFile().toPath();
+        } catch (Throwable ignore) {
+            _dataDir = (null != dataDir ? dataDir : _dataDir).toAbsolutePath();
+        }
         _confDir = _dataDir.resolve(null == confDirName || confDirName.isBlank() ? ".config" : confDirName);
     }
 

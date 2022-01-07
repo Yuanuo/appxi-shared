@@ -7,8 +7,9 @@ import java.util.*;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileWatcher implements Runnable {
-    protected static final List<WatchService> watchServices = new ArrayList<>(4);
-    protected final List<WatchListener> watchListeners = new ArrayList<>();
+    private static final Set<String> watchedFolders = new HashSet<>();
+    private static final List<WatchService> watchServices = new ArrayList<>(4);
+    private final List<WatchListener> watchListeners = new ArrayList<>();
     private Path folder, fileName;
     private WatchKey watchKey;
 
@@ -24,8 +25,9 @@ public class FileWatcher implements Runnable {
     }
 
     public FileWatcher watching() {
-        if (Files.notExists(this.folder))
+        if (Files.notExists(this.folder) || watchedFolders.contains(this.folder.toString()))
             return this;
+        watchedFolders.add(this.folder.toString());
         final Thread thread = new Thread(this);
         thread.setDaemon(true);
         thread.start();

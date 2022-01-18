@@ -17,6 +17,11 @@ public enum HanLang {
         this.text = text;
     }
 
+    @Override
+    public String toString() {
+        return text;
+    }
+
     public static HanLang valueBy(String lang) {
         lang = null != lang ? lang.toLowerCase() : "";
         return switch (lang) {

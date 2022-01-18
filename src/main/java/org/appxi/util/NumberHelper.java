@@ -1,5 +1,7 @@
 package org.appxi.util;
 
+import java.util.Arrays;
+
 public abstract class NumberHelper {
     public static int toInt(String str, int defaultValue) {
         try {
@@ -42,5 +44,25 @@ public abstract class NumberHelper {
         for (char c : String.valueOf(num).toCharArray())
             buff.append(OLD_NUMBERS[Character.getNumericValue(c)]);
         return buff.toString();
+    }
+
+    private static char[] radix62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
+
+    public static String toRadix62(long value) {
+        StringBuilder result = new StringBuilder();
+        while (value > 61) {
+            result.append(radix62Chars[(int) (value % 62)]);
+            value = value / 62;
+        }
+        result.append(radix62Chars[(int) value]);
+        return result.reverse().toString();
+    }
+
+    public static long fromRadix62(String str) {
+        long result = 0;
+        for (int i = 0; i < str.length(); i++) {
+            result += (long) (Arrays.binarySearch(radix62Chars, str.charAt(i)) * Math.pow(62, str.length() - i - 1));
+        }
+        return result;
     }
 }

@@ -1,15 +1,29 @@
 package org.appxi.util;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -309,5 +323,13 @@ public interface FileHelper {
         } catch (Throwable ignore) {
         }
         return new byte[0];
+    }
+
+    static void setHidden(Path path, boolean state) {
+        try {
+            //FIXME only for Windows
+            Files.setAttribute(path, "dos:hidden", state, LinkOption.NOFOLLOW_LINKS);
+        } catch (Throwable ignore) {
+        }
     }
 }

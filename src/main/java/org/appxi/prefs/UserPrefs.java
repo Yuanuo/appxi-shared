@@ -12,6 +12,7 @@ public abstract class UserPrefs {
      * <code>UserPrefs.prefs = new PreferencesInProperties(UserPrefs.confDir().resolve(".prefs"));</code>
      */
     public static Preferences prefs = new PreferencesInMemory();
+    public static Preferences prefsEx = new PreferencesInMemory();
 
     public static Preferences recents = new PreferencesInMemory();
 

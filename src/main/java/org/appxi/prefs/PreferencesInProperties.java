@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -24,10 +26,18 @@ public class PreferencesInProperties implements Preferences {
     private final boolean xmlMode;
 
     public PreferencesInProperties(Path file) {
-        this(file, true);
+        this(file, true, null);
     }
 
     public PreferencesInProperties(Path file, boolean load) {
+        this(file, load, null);
+    }
+
+    public PreferencesInProperties(Path file, Charset charset) {
+        this(file, true, charset);
+    }
+
+    public PreferencesInProperties(Path file, boolean load, Charset charset) {
         this.file = Objects.requireNonNull(file);
         this.prefs = new OrderedProperties();
         this.xmlMode = file.getFileName().toString().toLowerCase().endsWith(".xml");
@@ -35,6 +45,7 @@ public class PreferencesInProperties implements Preferences {
         if (load && Files.exists(file)) {
             try (InputStream inStream = new BufferedInputStream(Files.newInputStream(file))) {
                 if (xmlMode) prefs.loadFromXML(inStream);
+                else if (null != charset) prefs.load(new InputStreamReader(inStream, charset));
                 else prefs.load(inStream);
             } catch (IOException e) {
                 logger.warn("load PreferencesInProperties failed", e);

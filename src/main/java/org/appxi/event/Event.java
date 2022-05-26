@@ -3,7 +3,7 @@ package org.appxi.event;
 import java.util.Objects;
 
 public class Event {
-    public static final EventType<?> ANY = new EventType<>("ANY");
+    public static final EventType<Event> ANY = new EventType<>("ANY");
 
     public final EventType<?> eventType;
     public final Object data;
@@ -26,7 +26,7 @@ public class Event {
         return (T) data;
     }
 
-    public final void setConsumed() {
+    public void consume() {
         this.consumed = true;
     }
 

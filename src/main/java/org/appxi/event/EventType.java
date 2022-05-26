@@ -3,14 +3,14 @@ package org.appxi.event;
 import java.util.Objects;
 
 public class EventType<T extends Event> {
-    public final EventType<T> parent;
+    public final EventType<? super T> parent;
     public final String typeId;
 
     public EventType(String typeId) {
         this(null, typeId);
     }
 
-    public EventType(EventType<T> parent, String typeId) {
+    public EventType(EventType<? super T> parent, String typeId) {
         Objects.requireNonNull(typeId);
 
         this.parent = parent;

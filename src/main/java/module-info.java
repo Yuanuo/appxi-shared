@@ -6,6 +6,7 @@ module appxi.shared {
     exports org.appxi.file;
     exports org.appxi.holder;
     exports org.appxi.prefs;
+    exports org.appxi.property;
     exports org.appxi.util;
     exports org.appxi.util.ext;
 }

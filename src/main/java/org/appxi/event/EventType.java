@@ -1,10 +1,13 @@
 package org.appxi.event;
 
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 public class EventType<T extends Event> {
     public final EventType<? super T> parent;
     public final String typeId;
+
+    WeakHashMap<EventType<? extends T>, Void> children;
 
     public EventType(String typeId) {
         this(null, typeId);
@@ -15,6 +18,13 @@ public class EventType<T extends Event> {
 
         this.parent = parent;
         this.typeId = typeId;
+
+        if (null != parent) {
+            if (null == parent.children) {
+                parent.children = new WeakHashMap<>();
+            }
+            parent.children.put(this, null);
+        }
     }
 
     @Override

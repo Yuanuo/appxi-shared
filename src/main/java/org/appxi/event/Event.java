@@ -26,11 +26,15 @@ public class Event {
         return (T) data;
     }
 
-    public void consume() {
+    public final void consume() {
         this.consumed = true;
     }
 
     public final boolean isConsumed() {
         return consumed;
+    }
+
+    public final EventType<?> getEventType() {
+        return eventType;
     }
 }

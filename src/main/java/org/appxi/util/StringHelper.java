@@ -2,7 +2,11 @@ package org.appxi.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,9 +151,9 @@ public interface StringHelper {
      * by the escapeChar.
      * This routine can be useful for processing a line of a CSV file.
      *
-     * @param str         The String to split into fields. Cannot be null.
-     * @param splitChar The character to split on
-     * @param quoteChar The character to quote items with
+     * @param str        The String to split into fields. Cannot be null.
+     * @param splitChar  The character to split on
+     * @param quoteChar  The character to quote items with
      * @param escapeChar The character to escape the quoteChar with
      * @return An array of Strings that s is split into
      */
@@ -175,7 +179,7 @@ public interface StringHelper {
                     curr = str.charAt(i);
                     // mrsmith: changed this condition from
                     // if (curr == escapeChar) {
-                    if ((curr == escapeChar) && (i+1 < length) && (str.charAt(i+1) == quoteChar)) {
+                    if ((curr == escapeChar) && (i + 1 < length) && (str.charAt(i + 1) == quoteChar)) {
                         b.append(str.charAt(i + 1));
                         i += 2;
                     } else if (curr == quoteChar) {
@@ -348,4 +352,29 @@ public interface StringHelper {
                 && str1.split(splitter, 2)[1].equals(str2.split(splitter, 2)[1]);
     }
 
+    static StringBuilder buildWebIncludes(StringBuilder buff, List<String> includes) {
+        final List<String> scripts = new ArrayList<>(), styles = new ArrayList<>();
+        for (String include : includes) {
+            if (include.endsWith(".js")) {
+                buff.append("\n<script type=\"text/javascript\" src=\"").append(include).append("\"></script>");
+            } else if (include.endsWith(".css")) {
+                buff.append("\n<link rel=\"stylesheet\" href=\"").append(include).append("\"/>");
+            } else if (include.startsWith("<script") || include.startsWith("<style")
+                    || include.startsWith("<link") || include.startsWith("<meta")) {
+                buff.append("\n").append(include);
+            } else if (include.startsWith("var ") || include.startsWith("function")) {
+                scripts.add(include);
+            } else {
+                styles.add(include);
+            }
+        }
+        if (!scripts.isEmpty()) {
+            buff.append("\n<script type=\"text/javascript\">").append(StringHelper.joinLines(scripts)).append("</script>");
+        }
+        if (!styles.isEmpty()) {
+            buff.append("\n<style type=\"text/css\">").append(StringHelper.joinLines(styles)).append("</style>");
+        }
+        //
+        return buff;
+    }
 }

@@ -29,7 +29,7 @@ class EventHandlers {
 
     void fireEvent(Event event) {
         for (EventHandler eventHandler : new ArrayList<>(getEventHandlers(event.eventType))) {
-            eventHandler.onEvent(event);
+            eventHandler.handle(event);
             if (event.isConsumed()) break;
         }
     }

@@ -355,10 +355,10 @@ public interface StringHelper {
     static StringBuilder buildWebIncludes(StringBuilder buff, List<String> includes) {
         final List<String> scripts = new ArrayList<>(), styles = new ArrayList<>();
         for (String include : includes) {
-            if (include.endsWith(".js")) {
+            if (include.endsWith(".js") || include.startsWith("data:text/javascript;")) {
                 buff.append("\n<script type=\"text/javascript\" src=\"").append(include).append("\"></script>");
-            } else if (include.endsWith(".css")) {
-                buff.append("\n<link rel=\"stylesheet\" href=\"").append(include).append("\"/>");
+            } else if (include.endsWith(".css") || include.startsWith("data:text/css;")) {
+                buff.append("\n<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(include).append("\"/>");
             } else if (include.startsWith("<script") || include.startsWith("<style")
                     || include.startsWith("<link") || include.startsWith("<meta")) {
                 buff.append("\n").append(include);

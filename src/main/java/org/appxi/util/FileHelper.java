@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -104,18 +105,33 @@ public interface FileHelper {
         return 0;
     }
 
-    static long fileTime(Path file) {
-        if (exists(file)) {
-            try {
-                return Files.getLastModifiedTime(file).toMillis();
-            } catch (IOException e) {
-                e.printStackTrace();
+    /**
+     * 获取给定源的有效日期
+     *
+     * @param file 数据源，支持的类型：{@link java.nio.file.Path}, {@link java.net.URL}, {@link java.net.URLConnection}
+     * @return 有效日期，通常为给定源的最后修改时间，若是未支持的类型或任何异常则返回-1
+     */
+    static long fileTime(Object file) {
+        if (file instanceof Path path) {
+            if (exists(path)) {
+                try {
+                    return Files.getLastModifiedTime(path).toMillis();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        } else if (file instanceof URL url) {
+            try {
+                return url.openConnection().getLastModified();
+            } catch (IOException ignore) {
+            }
+        } else if (file instanceof URLConnection urlConn) {
+            return urlConn.getLastModified();
         }
         return -1;
     }
 
-    static long fileTimeNewest(Path... files) {
+    static long fileTimeNewest(Object... files) {
         if (null == files || files.length == 0)
             return -1;
         final Long[] times = new Long[files.length];
@@ -223,7 +239,18 @@ public interface FileHelper {
         }
     }
 
-    static boolean isTargetFileUpdatable(Path target, Path... sources) {
+    /**
+     * 根据给定的众多源数据检测目标文件是否需要更新
+     * <p>
+     * 适用情况在目标文件依赖于众多数据源而产生，并且需要随着数据源而更新时，
+     * 如果目标数据源中任一文件的最后修改日期超过了目标文件的最后修改日期，
+     * 则认为数据源有变化而需要更新目标文件。
+     *
+     * @param target  目标文件
+     * @param sources 数据源，支持的类型：{@link java.nio.file.Path}, {@link java.net.URL}, {@link java.net.URLConnection}
+     * @return 如果目标文件需要更新返回true，否则返回false
+     */
+    static boolean isTargetFileUpdatable(Path target, Object... sources) {
         if (notExists(target))
             return true;
         if (fileTime(target) < fileTimeNewest(sources)) {

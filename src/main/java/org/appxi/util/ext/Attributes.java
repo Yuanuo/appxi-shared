@@ -1,6 +1,11 @@
 package org.appxi.util.ext;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -24,8 +29,7 @@ public class Attributes {
     }
 
     public final <T> T attrOr(Object key, Supplier<T> defaultValue) {
-        final T val = (T) this.attributes.get(key);
-        return null != val ? val : defaultValue == null ? null : defaultValue.get();
+        return (T) this.attributes.computeIfAbsent(key, k -> defaultValue.get());
     }
 
     @SuppressWarnings("unchecked")

@@ -95,8 +95,8 @@ public class Node<T> extends Attributes implements Serializable {
         return !this.children.isEmpty();
     }
 
-    public Node<T> add(T value) {
-        return new Node<>(this, value);
+    public Node<T> add(Object value) {
+        return new Node<>(this, (T) value);
     }
 
     public final int level() {
@@ -207,8 +207,8 @@ public class Node<T> extends Attributes implements Serializable {
         });
     }
 
-    public Node<T> merge(Node<T> other) {
-        other.children.forEach(c -> c.parent = this);
+    public Node<T> merge(Node other) {
+        other.children.forEach(c -> ((Node)c).parent = this);
         this.children.addAll(other.children);
         return this;
     }

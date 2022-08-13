@@ -29,7 +29,12 @@ public class Attributes {
     }
 
     public final <T> T attrOr(Object key, Supplier<T> defaultValue) {
-        return (T) this.attributes.computeIfAbsent(key, k -> defaultValue.get());
+        Object val = this.attributes.get(key);
+        if (null == val && null != defaultValue) {
+            val = defaultValue.get();
+            this.attributes.put(key, val);
+        }
+        return (T) val;
     }
 
     @SuppressWarnings("unchecked")

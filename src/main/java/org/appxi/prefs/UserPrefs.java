@@ -46,14 +46,14 @@ public abstract class UserPrefs {
      */
     public static void localDataDirectory(String dataDirName, String confDirName) {
         // 1，兼容绿色版，从当前目录的上一级寻找，如果可用则用
-        Path dataDir = _workDir.resolve("../".concat(dataDirName));
-        if (Files.exists(dataDir) && Files.isWritable(dataDir)) {
+        Path dataDir = _workDir.getParent().resolve(dataDirName);
+        if (Files.exists(dataDir) && Files.isDirectory(dataDir) && Files.isWritable(dataDir)) {
             setupDataDirectory(dataDir, confDirName);
             return;
         }
         // 2，兼容绿色版，从当前目录中寻找，如果可用则用
         dataDir = _workDir.resolve(dataDirName);
-        if (Files.exists(dataDir) && Files.isWritable(dataDir)) {
+        if (Files.exists(dataDir) && Files.isDirectory(dataDir) && Files.isWritable(dataDir)) {
             setupDataDirectory(dataDir, confDirName);
             return;
         }

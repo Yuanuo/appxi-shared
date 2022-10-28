@@ -46,7 +46,7 @@ public abstract class UserPrefs {
      */
     public static void localDataDirectory(String dataDirName, String confDirName) {
         // 1，兼容绿色版，从当前目录的上一级寻找，如果可用则用
-        Path dataDir = _workDir.getParent().resolve(dataDirName);
+        Path dataDir = (null != _workDir.getParent() ? _workDir.getParent() : _workDir).resolve(dataDirName);
         if (Files.exists(dataDir) && Files.isDirectory(dataDir) && Files.isWritable(dataDir)) {
             setupDataDirectory(dataDir, confDirName);
             return;

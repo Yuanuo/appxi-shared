@@ -5,12 +5,12 @@
 
     <groupId>org.appxi</groupId>
     <artifactId>shared</artifactId>
-    <version>22.10.28</version>
+    <version>23.11.07</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>18</maven.compiler.release>
-        <slf4j.version>2.0.3</slf4j.version>
+        <maven.compiler.release>17</maven.compiler.release>
+        <slf4j.version>2.0.9</slf4j.version>
     </properties>
 
     <dependencies>

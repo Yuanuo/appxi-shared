@@ -87,6 +87,22 @@ public class Node<T> extends Attributes implements Serializable {
         return ctx.value;
     }
 
+    public final Node<T> previousSibling() {
+        if (null == parent) {
+            return null;
+        }
+        int idx = parent.children.indexOf(this) - 1;
+        return idx < 0 ? null : parent.children.get(idx);
+    }
+
+    public final Node<T> nextSibling() {
+        if (null == parent) {
+            return null;
+        }
+        int idx = parent.children.indexOf(this) + 1;
+        return idx > 0 && idx < parent.children.size() ? parent.children.get(idx) : null;
+    }
+
     public List<Node<T>> children() {
         return children;
     }
@@ -208,7 +224,7 @@ public class Node<T> extends Attributes implements Serializable {
     }
 
     public Node<T> merge(Node other) {
-        other.children.forEach(c -> ((Node)c).parent = this);
+        other.children.forEach(c -> ((Node) c).parent = this);
         this.children.addAll(other.children);
         return this;
     }
@@ -240,5 +256,30 @@ public class Node<T> extends Attributes implements Serializable {
 
     public final Node<T> getLinkedNext() {
         return this.attr(AK_LINKED_NEXT);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void walk(Walker<T> walker) {
+        _walk(walker, 1, this);
+    }
+
+    private void _walk(Walker<T> walker, int depth, Node<T> node) {
+        walker.head(depth, node, node.value);
+        //
+        int nextDepth = depth + 1;
+        for (Node<T> child : node.children) {
+            _walk(walker, nextDepth, child);
+        }
+        //
+        walker.tail(depth, node, node.value);
+    }
+
+    public interface Walker<T> {
+        default void head(int depth, Node<T> node, T nodeVal) {
+        }
+
+        default void tail(int depth, Node<T> node, T nodeVal) {
+        }
     }
 }

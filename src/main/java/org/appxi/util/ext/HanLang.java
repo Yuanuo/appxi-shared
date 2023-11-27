@@ -1,5 +1,12 @@
 package org.appxi.util.ext;
 
+import org.appxi.event.EventBus;
+import org.appxi.event.EventType;
+import org.appxi.prefs.UserPrefs;
+
+import java.util.Objects;
+import java.util.function.BiFunction;
+
 public enum HanLang {
     zh("zh", "中文"),
     hans("zh-Hans", "中文简体"),
@@ -34,4 +41,48 @@ public enum HanLang {
             default -> zh;
         };
     }
+
+    public static class Event extends org.appxi.event.Event {
+        public static final EventType<Event> CHANGED = new EventType<>(org.appxi.event.Event.ANY, "HAN_LANG_CHANGED");
+
+        public Event(EventType<Event> eventType, Object data) {
+            super(eventType, data);
+        }
+    }
+
+    private static HanLang _hanLang;
+    private static EventBus _eventBus;
+    private static BiFunction<String, HanLang, String> _hanTextConvertor;
+
+    public static void setup(EventBus eventBus, BiFunction<String, HanLang, String> hanTextConvertor) {
+        _eventBus = eventBus;
+        _hanTextConvertor = hanTextConvertor;
+        //
+        eventBus.addEventHandler(Event.CHANGED, event -> _hanLang = event.data());
+    }
+
+    public static void apply(HanLang hanLang) {
+        if (null == hanLang || Objects.equals(_hanLang, hanLang)) return;
+        //
+
+        UserPrefs.prefs.setProperty("display.han", hanLang.lang);
+
+        if (null == _eventBus) {
+            _hanLang = hanLang;
+        } else {
+            _eventBus.fireEvent(new HanLang.Event(HanLang.Event.CHANGED, hanLang));
+        }
+    }
+
+    public static HanLang get() {
+        if (null == _hanLang) {
+            _hanLang = valueBy(UserPrefs.prefs.getString("display.han", hans.lang));
+        }
+        return _hanLang;
+    }
+
+    public static String convert(String text) {
+        return null == text ? "" : (null == _hanTextConvertor ? text : _hanTextConvertor.apply(text, get()));
+    }
+
 }

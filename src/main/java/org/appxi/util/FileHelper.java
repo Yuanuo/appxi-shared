@@ -195,19 +195,19 @@ public interface FileHelper {
         }
     }
 
-    static void lines(Path file, Predicate<String> predicate) {
+    static void lines2(Path file, Predicate<String> predicate) {
         try (InputStream stream = Files.newInputStream(file)) {
-            lines(stream, predicate);
+            lines2(stream, predicate);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    static void lines(InputStream stream, Predicate<String> predicate) {
-        lines(stream, StandardCharsets.UTF_8, predicate);
+    static void lines2(InputStream stream, Predicate<String> predicate) {
+        lines2(stream, StandardCharsets.UTF_8, predicate);
     }
 
-    static void lines(InputStream stream, Charset charset, Predicate<String> predicate) {
+    static void lines2(InputStream stream, Charset charset, Predicate<String> predicate) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(stream), charset))) {
             String line;
             while ((line = reader.readLine()) != null)
@@ -358,5 +358,19 @@ public interface FileHelper {
             Files.setAttribute(path, "dos:hidden", state, LinkOption.NOFOLLOW_LINKS);
         } catch (Throwable ignore) {
         }
+    }
+
+    static Path getNonExistsPath(Path path, String name, String dotExt) {
+        Path result = path.resolve(name + dotExt);
+        if (notExists(result)) {
+            return result;
+        }
+        for (int i = 1; i < 1000000; i++) {
+            result = path.resolve(name + " (" + i + ")" + dotExt);
+            if (notExists(result)) {
+                break;
+            }
+        }
+        return result;
     }
 }

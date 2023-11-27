@@ -6,6 +6,7 @@ import org.appxi.util.ext.Node;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class Book extends Attributes implements Serializable {
     public String id;
@@ -47,6 +48,19 @@ public class Book extends Attributes implements Serializable {
     @Override
     public String toString() {
         return this.title;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return Objects.equals(id, book.id) && Objects.equals(path, book.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, path);
     }
 
     public Book clone() {

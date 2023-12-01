@@ -143,7 +143,9 @@ public class Node<T> extends Attributes implements Serializable {
     private void traverse(int level, FiConsumerX3<Integer, Node<T>, T> consumer) {
         if (null != this.parent) // skip root
             consumer.accept(level, this, this.value);
-        this.children.forEach(child -> child.traverse(level + 1, consumer));
+        for (int i = 0; i < this.children.size(); i++) {
+            this.children.get(i).traverse(level + 1, consumer);
+        }
     }
 
     public void traverseReversed(FiConsumerX3<Integer, Node<T>, T> consumer) {
@@ -268,8 +270,8 @@ public class Node<T> extends Attributes implements Serializable {
         walker.head(depth, node, node.value);
         //
         int nextDepth = depth + 1;
-        for (Node<T> child : node.children) {
-            _walk(walker, nextDepth, child);
+        for (int i = 0; i < node.children.size(); i++) {
+            _walk(walker, nextDepth, node.children.get(i));
         }
         //
         walker.tail(depth, node, node.value);

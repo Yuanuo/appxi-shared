@@ -7,17 +7,6 @@ import java.nio.file.Path;
  * 用于记录用户数据（通常称为偏好设置）等的通用工具类
  */
 public abstract class UserPrefs {
-    /**
-     * 用于记录用户数据的通用实现，默认使用内存存储，实际环境使用时建议初始化
-     * <code>UserPrefs.prefs = new PreferencesInProperties(UserPrefs.confDir().resolve(".prefs"));</code>
-     */
-    public static Preferences prefs = new PreferencesInMemory();
-    public static Preferences prefsEx = new PreferencesInMemory();
-
-    public static Preferences recents = new PreferencesInMemory();
-
-    public static Preferences favorites = new PreferencesInMemory();
-
     private static final Path _workDir = Path.of("").toAbsolutePath();
     private static Path _homeDir = Path.of(System.getProperty("user.home"));
     private static Path _dataDir = _homeDir;

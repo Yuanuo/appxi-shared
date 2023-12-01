@@ -2,10 +2,9 @@ package org.appxi.util.ext;
 
 import org.appxi.event.EventBus;
 import org.appxi.event.EventType;
-import org.appxi.prefs.UserPrefs;
+import org.appxi.prefs.Preferences;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
 
 public enum HanLang {
     zh("zh", "中文"),
@@ -50,39 +49,40 @@ public enum HanLang {
         }
     }
 
-    private static HanLang _hanLang;
-    private static EventBus _eventBus;
-    private static BiFunction<String, HanLang, String> _hanTextConvertor;
+    public static class Provider {
+        final Preferences config;
+        final EventBus eventBus;
 
-    public static void setup(EventBus eventBus, BiFunction<String, HanLang, String> hanTextConvertor) {
-        _eventBus = eventBus;
-        _hanTextConvertor = hanTextConvertor;
-        //
-        eventBus.addEventHandler(Event.CHANGED, event -> _hanLang = event.data());
-    }
+        HanLang _hanLang;
 
-    public static void apply(HanLang hanLang) {
-        if (null == hanLang || Objects.equals(_hanLang, hanLang)) return;
-        //
+        public Provider(Preferences config, EventBus eventBus) {
+            this.config = config;
+            this.eventBus = eventBus;
+            //
+            eventBus.addEventHandler(Event.CHANGED, event -> _hanLang = event.data());
+        }
 
-        UserPrefs.prefs.setProperty("display.han", hanLang.lang);
+        public void apply(HanLang hanLang) {
+            if (null == hanLang) return;
+            //
+            config.setProperty("display.han", hanLang.lang);
 
-        if (null == _eventBus) {
-            _hanLang = hanLang;
-        } else {
-            _eventBus.fireEvent(new HanLang.Event(HanLang.Event.CHANGED, hanLang));
+            if (Objects.equals(_hanLang, hanLang)) {
+                return;
+            }
+
+            if (null == eventBus) {
+                _hanLang = hanLang;
+            } else {
+                eventBus.fireEvent(new HanLang.Event(HanLang.Event.CHANGED, hanLang));
+            }
+        }
+
+        public HanLang get() {
+            if (null == _hanLang) {
+                _hanLang = valueBy(config.getString("display.han", hans.lang));
+            }
+            return _hanLang;
         }
     }
-
-    public static HanLang get() {
-        if (null == _hanLang) {
-            _hanLang = valueBy(UserPrefs.prefs.getString("display.han", hans.lang));
-        }
-        return _hanLang;
-    }
-
-    public static String convert(String text) {
-        return null == text ? "" : (null == _hanTextConvertor ? text : _hanTextConvertor.apply(text, get()));
-    }
-
 }

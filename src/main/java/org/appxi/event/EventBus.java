@@ -5,7 +5,7 @@ package org.appxi.event;
  * the events.
  */
 public final class EventBus {
-    public static final EventBus ONE = new EventBus();
+    private static final EventBus global = new EventBus();
 
     private final EventHandlers eventHandlers = new EventHandlers();
 
@@ -18,8 +18,9 @@ public final class EventBus {
      */
     @SuppressWarnings("unchecked")
     public <T extends Event> EventSubscriber addEventHandler(EventType<T> eventType, EventHandler<? super T> eventHandler) {
-        eventHandlers.addEventHandler(eventType, eventHandler);
-        return new EventSubscriber(this, eventType, (EventHandler<? super Event>) eventHandler);
+        final EventBus eventBus = eventType.isGlobally ? global : this;
+        eventBus.eventHandlers.addEventHandler(eventType, eventHandler);
+        return new EventSubscriber(eventBus, eventType, (EventHandler<? super Event>) eventHandler);
     }
 
     /**
@@ -30,7 +31,8 @@ public final class EventBus {
      * @param <T>          event
      */
     public <T extends Event> void removeEventHandler(EventType<T> eventType, EventHandler<? super T> eventHandler) {
-        eventHandlers.removeEventHandler(eventType, eventHandler);
+        final EventBus eventBus = eventType.isGlobally ? global : this;
+        eventBus.eventHandlers.removeEventHandler(eventType, eventHandler);
     }
 
     /**
@@ -45,6 +47,7 @@ public final class EventBus {
      * @param event the event
      */
     public void fireEvent(Event event) {
-        eventHandlers.fireEvent(event);
+        final EventBus eventBus = event.eventType.isGlobally ? global : this;
+        eventBus.eventHandlers.fireEvent(event);
     }
 }

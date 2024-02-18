@@ -5,7 +5,7 @@
 
     <groupId>org.appxi</groupId>
     <artifactId>shared</artifactId>
-    <version>23.11.07</version>
+    <version>24.02.17</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -23,6 +23,14 @@ public final class EventBus {
         return new EventSubscriber(eventBus, eventType, (EventHandler<? super Event>) eventHandler);
     }
 
+    public <T extends Event> void addEventsHandler(EventType<T>[] eventTypes, EventHandler<? super T> eventHandler) {
+        for (EventType<T> eventType: eventTypes) {
+            final EventBus eventBus = eventType.isGlobally ? global : this;
+            eventBus.eventHandlers.addEventHandler(eventType, eventHandler);
+            new EventSubscriber(eventBus, eventType, (EventHandler<? super Event>) eventHandler);
+        }
+    }
+
     /**
      * Remove event handler for event type.
      *

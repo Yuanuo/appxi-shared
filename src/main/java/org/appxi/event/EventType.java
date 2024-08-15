@@ -44,4 +44,20 @@ public class EventType<T extends Event> {
     public int hashCode() {
         return Objects.hash(typeId);
     }
+
+    public Event of() {
+        return new Event(this);
+    }
+
+    public Event of(Object data) {
+        return new Event(this, data);
+    }
+
+    public Event.Changed ofChanged(Object from, Object data) {
+        return new Event.Changed(this, from, data);
+    }
+
+    public Event.Typed ofTyped(String type, Object data) {
+        return new Event.Typed(this, type, data);
+    }
 }

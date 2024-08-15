@@ -37,4 +37,22 @@ public class Event {
     public final EventType<?> getEventType() {
         return eventType;
     }
+
+    public static class Changed extends Event{
+        public final Object from;
+
+        public Changed(EventType<?> eventType, Object from, Object data) {
+            super(eventType, data);
+            this.from = from;
+        }
+    }
+
+    public static class Typed extends Event{
+        public final String type;
+
+        public Typed(EventType<?> eventType, String type, Object data) {
+            super(eventType, data);
+            this.type = type;
+        }
+    }
 }

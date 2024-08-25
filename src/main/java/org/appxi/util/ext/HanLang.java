@@ -1,5 +1,6 @@
 package org.appxi.util.ext;
 
+import org.appxi.event.Event;
 import org.appxi.event.EventBus;
 import org.appxi.event.EventType;
 import org.appxi.prefs.Preferences;
@@ -41,13 +42,7 @@ public enum HanLang {
         };
     }
 
-    public static class Event extends org.appxi.event.Event {
-        public static final EventType<Event> CHANGED = new EventType<>(org.appxi.event.Event.ANY, "HAN_LANG_CHANGED");
-
-        public Event(EventType<Event> eventType, Object data) {
-            super(eventType, data);
-        }
-    }
+    public static final EventType<Event.Changed> CHANGED = new EventType<>(Event.ANY);
 
     public static class Provider {
         final Preferences config;
@@ -59,7 +54,7 @@ public enum HanLang {
             this.config = config;
             this.eventBus = eventBus;
             //
-            eventBus.addEventHandler(Event.CHANGED, event -> _hanLang = event.data());
+            eventBus.addEventHandler(CHANGED, event -> _hanLang = event.data());
         }
 
         public void apply(HanLang hanLang) {
@@ -74,7 +69,7 @@ public enum HanLang {
             if (null == eventBus) {
                 _hanLang = hanLang;
             } else {
-                eventBus.fireEvent(new HanLang.Event(HanLang.Event.CHANGED, hanLang));
+                eventBus.fireEvent(HanLang.CHANGED.ofChanged(_hanLang, hanLang));
             }
         }
 

@@ -3,7 +3,7 @@ package org.appxi.event;
 import java.util.Objects;
 
 public class Event {
-    public static final EventType<Event> ANY = new EventType<>("ANY");
+    public static final EventType<Event> ANY = new EventType<>();
 
     public final EventType<?> eventType;
     public final Object data;
@@ -38,7 +38,7 @@ public class Event {
         return eventType;
     }
 
-    public static class Changed extends Event{
+    public static class Changed extends Event {
         public final Object from;
 
         public Changed(EventType<?> eventType, Object from, Object data) {
@@ -47,7 +47,7 @@ public class Event {
         }
     }
 
-    public static class Typed extends Event{
+    public static class Typed extends Event {
         public final String type;
 
         public Typed(EventType<?> eventType, String type, Object data) {

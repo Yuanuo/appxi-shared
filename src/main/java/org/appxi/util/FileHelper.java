@@ -342,11 +342,10 @@ public interface FileHelper {
         }
     }
 
+    @Deprecated
     static byte[] readFully(InputStream stream) {
         try {
-            byte[] result = new byte[stream.available()];
-            stream.read(result);
-            return result;
+            return stream.readAllBytes();
         } catch (Throwable ignore) {
         }
         return new byte[0];

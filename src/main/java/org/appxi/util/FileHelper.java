@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public interface FileHelper {
@@ -335,10 +336,18 @@ public interface FileHelper {
     }
 
     static void walkZipFile(String file, BiConsumer<ZipFile, ZipEntry> consumer) {
-        try (ZipFile zipFile = new ZipFile(file)) {
+        try (ZipFile zipFile = openZipFile(file)) {
             zipFile.stream().forEach(zipEntry -> consumer.accept(zipFile, zipEntry));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    static ZipFile openZipFile(String file) throws IOException {
+        try {
+            return new ZipFile(file);
+        } catch (ZipException e) {
+            return new ZipFile(file, Charset.forName("GBK"));
         }
     }
 

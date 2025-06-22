@@ -4,9 +4,14 @@ import org.appxi.holder.RawHolder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class Node<T> extends Attributes implements Serializable {
     private Node<T> parent;
@@ -109,6 +114,10 @@ public class Node<T> extends Attributes implements Serializable {
 
     public boolean hasChildren() {
         return !this.children.isEmpty();
+    }
+
+    public void addChildren(Collection<Node<T>> nodes) {
+        nodes.forEach(node -> node.setParent(this));
     }
 
     public Node<T> add(Object value) {
@@ -217,7 +226,7 @@ public class Node<T> extends Attributes implements Serializable {
         return null == node ? null : node.value;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void printTree(BiFunction<Node<T>, T, String> format) {
         this.traverse((level, node, val) -> {
             final String str = null != format ? format.apply(node, val) : String.valueOf(val);
@@ -231,7 +240,7 @@ public class Node<T> extends Attributes implements Serializable {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private static final Object AK_LINKED_PREV = new Object();
     private static final Object AK_LINKED_NEXT = new Object();
 
@@ -260,7 +269,7 @@ public class Node<T> extends Attributes implements Serializable {
         return this.attr(AK_LINKED_NEXT);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void walk(Walker<T> walker) {
         _walk(walker, 1, this);
@@ -275,6 +284,69 @@ public class Node<T> extends Attributes implements Serializable {
         }
         //
         walker.tail(depth, node, node.value);
+    }
+
+    public void wrap(BiPredicate<Node<T>, T> start, BiPredicate<Node<T>, T> end, Function<List<Node<T>>, T> convertor) {
+        List<Node<T>> newChildren = select(start, end);
+        if (!newChildren.isEmpty()) {
+            int insertIdx = children.indexOf(newChildren.getFirst());
+            children.removeAll(newChildren);
+
+            Node<T> newNode = new Node<>(convertor.apply(newChildren));
+            children.add(insertIdx, newNode);
+            newNode.setParent(this);
+
+            newNode.addChildren(newChildren);
+        }
+    }
+
+    public List<Node<T>> select(BiPredicate<Node<T>, T> start, BiPredicate<Node<T>, T> end) {
+        int startIdx = -1;
+        int endIdx = -1;
+        for (int i = 0; i < children.size(); i++) {
+            Node<T> child = children.get(i);
+            if (startIdx == -1) {
+                if (start == null || start.test(child, child.value)) {
+                    startIdx = i;
+                }
+                continue;
+            }
+            if (end != null && end.test(child, child.value)) {
+                endIdx = i + 1;
+                break;
+            }
+        }
+        if (endIdx == -1) {
+            endIdx = children.size();
+        }
+        if (startIdx == endIdx) {
+            return new ArrayList<>(children.subList(startIdx, startIdx + 1));
+        }
+        return startIdx < 0 ? new ArrayList<>() : new ArrayList<>(children.subList(startIdx, endIdx));
+    }
+
+    public void unwarp(BiConsumer<Node<T>, Node<T>> consumer) {
+        if (this.children.isEmpty()) {
+            return;
+        }
+        final int idxInParents = this.index();
+
+        final List<Node<T>> newChildren = new ArrayList<>(this.children);
+        this.children.clear();
+        this.parent.children.addAll(idxInParents + 1, newChildren);
+        newChildren.forEach(c -> c.setParent(parent));
+
+        if (consumer != null) {
+            consumer.accept(this, newChildren.getFirst());
+        }
+    }
+
+    public int index() {
+        return this.parent == null ? -1 : this.parent.children.indexOf(this);
+    }
+
+    public void remove() {
+        this.setParent(null);
     }
 
     public interface Walker<T> {

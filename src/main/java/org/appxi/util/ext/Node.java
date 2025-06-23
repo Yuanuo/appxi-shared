@@ -349,6 +349,10 @@ public class Node<T> extends Attributes implements Serializable {
         this.setParent(null);
     }
 
+    public void empty() {
+        List.copyOf(this.children).forEach(Node::remove);
+    }
+
     public interface Walker<T> {
         default void head(int depth, Node<T> node, T nodeVal) {
         }
